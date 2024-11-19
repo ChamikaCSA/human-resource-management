@@ -1,18 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPosts, createPost } from "../../lib/api";
-import { User } from "@prisma/client";
-
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  author: User;
-  views: number;
-  tags: string[];
-  createdAt: string;
-}
+import { getPosts, createPost } from "../../lib/posts";
+import { Post } from "../newsfeed/types";
+import PostCard from "../../components/post-card";
 
 const Newsfeed = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -31,10 +22,14 @@ const Newsfeed = () => {
     setError("");
 
     try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        throw new Error("User not logged in");
+      }
       await createPost(
         newPostTitle,
         newPostContent,
-        "1", // TODO: Create a user authentication system and use the logged in user's ID
+        userId,
         new Date().toISOString()
       );
       setNewPostTitle("");
@@ -46,12 +41,18 @@ const Newsfeed = () => {
     }
   };
 
+  const handleBlur = () => {
+    if (!newPostTitle && !newPostContent) {
+      setIsCreatingPost(false);
+    }
+  };
+
   useEffect(() => {
     fetchPosts();
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-10 py-6 max-w-screen-lg">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Newsfeed</h1>
 
       {/* Create New Post Form */}
@@ -82,6 +83,7 @@ const Newsfeed = () => {
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
                 value={newPostTitle}
                 onChange={(e) => setNewPostTitle(e.target.value)}
+                onBlur={handleBlur}
                 required
               />
             </div>
@@ -98,6 +100,7 @@ const Newsfeed = () => {
                 rows={5}
                 value={newPostContent}
                 onChange={(e) => setNewPostContent(e.target.value)}
+                onBlur={handleBlur}
                 required
               />
             </div>
@@ -114,65 +117,16 @@ const Newsfeed = () => {
       </div>
 
       {/* Newsfeed Posts */}
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {posts.map((post) => (
-          <div
-            key={post.id}
-            className="border border-gray-300 rounded-lg p-6 shadow-sm bg-white hover:shadow-md transition"
-          >
-            <div className="flex items-center mb-4">
-              <img
-                src={`https://www.gravatar.com/avatar/${post.author.id}?d=identicon`}
-                alt={post.author.firstName}
-                className="w-10 h-10 rounded-full mr-3"
-              />
-              <div>
-                <h2 className="text-lg font-semibold text-gray-700">
-                  {post.author.firstName} {post.author.lastName}
-                </h2>
-                <small className="text-gray-500">
-                  {new Date(post.createdAt).toLocaleDateString()}
-                </small>
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              {post.title}
-            </h2>
-            <p className="text-gray-600 mb-4">
-              {post.content.length > 100
-                ? `${post.content.substring(0, 100)}...`
-                : post.content}
-              {post.content.length > 100 && (
-                <a href={`/posts/${post.id}`} className="text-blue-500 ml-2">
-                  Read more
-                </a>
-              )}
-            </p>
-            <div className="flex items-center justify-between text-gray-500 text-sm">
-              <div className="flex items-center">
-                <svg
-                  className="w-4 h-4 mr-1"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
-                </svg>
-                {post.views} views
-              </div>
-              <div className="flex items-center">
-                <svg
-                  className="w-4 h-4 mr-1"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v10H5V5zm2 2v2h6V7H7zm0 4v2h4v-2H7z" />
-                </svg>
-                {post.tags.join(", ")}
-              </div>
-            </div>
-          </div>
+          <PostCard key={post.id} post={post} />
         ))}
       </div>
+
+      {/* Footer */}
+      <footer className="mt-10 text-center text-gray-500">
+        &copy; {new Date().getFullYear()} HRM System. All rights reserved.
+      </footer>
     </div>
   );
 };

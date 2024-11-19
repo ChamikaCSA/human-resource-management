@@ -9,13 +9,14 @@ export class PostsService {
 
   async findAll(): Promise<Post[]> {
     return this.prisma.post.findMany({
-      include: { author: true },
-      
+      include: {
+        author: true,
+      },
     });
   }
 
   async create(createPostDto: CreatePostDto) {
-    const { title, content, authorId, views, tags, createdAt } = createPostDto;
+    const { title, content, authorId, views, likes, comments, shares, createdAt } = createPostDto;
     if (!title || !content) {
       throw new BadRequestException('Title and content must not be empty');
     }
@@ -27,7 +28,9 @@ export class PostsService {
           connect: { id: authorId },
         },
         views,
-        tags,
+        likes,
+        comments,
+        shares,
         createdAt: createdAt ? new Date(createdAt) : undefined,
       },
     });

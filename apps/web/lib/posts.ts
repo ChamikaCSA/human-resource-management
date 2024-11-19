@@ -1,4 +1,4 @@
-import { BACKEND_URL } from "./constants"
+import { BACKEND_URL } from "./constants";
 
 export const getPosts = async () => {
   const response = await fetch(`${BACKEND_URL}/posts`, {
@@ -7,13 +7,13 @@ export const getPosts = async () => {
       "Content-Type": "application/json",
     },
   });
-  
+
   if (!response.ok) {
     throw new Error("Failed to fetch posts");
   }
 
   return response.json();
-}
+};
 
 export const createPost = async (title: string, content: string, authorId: string, createdAt: string) => {
   const response = await fetch(`${BACKEND_URL}/posts`, {
@@ -27,4 +27,4 @@ export const createPost = async (title: string, content: string, authorId: strin
   if (!response.ok) {
     throw new Error(response.statusText);
   }
-}
+};

@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import { IsNotEmpty, IsString, IsBoolean, IsInt, IsArray, IsOptional, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsString, IsBoolean, IsInt, IsOptional, IsDateString } from 'class-validator';
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -19,9 +19,16 @@ export class CreatePostDto {
   views?: number;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  tags?: string[];
+  @IsInt()
+  likes?: number;
+
+  @IsOptional()
+  @IsInt()
+  comments?: number;
+
+  @IsOptional()
+  @IsInt()
+  shares?: number;
 
   @IsOptional()
   @IsDateString()
