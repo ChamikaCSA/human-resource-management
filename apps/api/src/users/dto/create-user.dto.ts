@@ -20,5 +20,18 @@ export class CreateUserDto {
   phoneNumber: string;
 
   @IsNotEmpty()
+  @MinLength(8)
   password: string;
+
+  @IsNotEmpty()
+  jobTitle: string;
+
+  @IsNotEmpty()
+  department: string;
+
+  @IsNotEmpty()
+  employmentType: string;
+
+  @IsNotEmpty()
+  workLocation: string;
 }

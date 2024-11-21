@@ -1,47 +1,53 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
+import { HashService } from '../hash/hash.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService, private prisma: PrismaService) {}
+  constructor(
+    private jwtService: JwtService,
+    private prisma: PrismaService,
+    private hashService: HashService,
+    private usersService: UsersService,
+  ) {}
+
+  private generateTokens(payload: any) {
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    return { accessToken, refreshToken };
+  }
 
   async signIn(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new BadRequestException('Invalid credentials');
+    if (!user || !(await this.hashService.comparePassword(password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const payload = { email: user.email, sub: user.id };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const tokens = this.generateTokens(payload);
 
-    return { user, accessToken, refreshToken };
+    return { user, ...tokens };
   }
 
   async signUp(createUserDto: CreateUserDto) {
-    const { email, firstName, lastName, birthDate, phoneNumber, password } = createUserDto;
-    if (!email || !firstName || !lastName || !birthDate || !phoneNumber || !password) {
-      throw new BadRequestException('All fields are required');
-    }
-
+    const { email, password } = createUserDto;
+    
     const existingUser = await this.prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       throw new BadRequestException('Email already in use');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await this.prisma.user.create({ data: { email, firstName, lastName, birthDate: new Date(birthDate).toISOString(), phoneNumber, password: hashedPassword } });
+    const hashedPassword = await this.hashService.hashPassword(password);
+    const user = await this.usersService.create({ ...createUserDto, password: hashedPassword });
 
     const payload = { email: user.email, sub: user.id };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const tokens = this.generateTokens(payload);
 
-    return { user, accessToken, refreshToken };
+    return { user, ...tokens };
   }
 
   async refreshToken(refreshToken: string) {
@@ -50,16 +56,15 @@ export class AuthService {
       const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
 
       if (!user) {
-        throw new BadRequestException('Invalid refresh token');
+        throw new UnauthorizedException('Invalid refresh token');
       }
 
       const newPayload = { email: user.email, sub: user.id };
-      const accessToken = this.jwtService.sign(newPayload, { expiresIn: '1h' });
-      const newRefreshToken = this.jwtService.sign(newPayload, { expiresIn: '7d' });
+      const tokens = this.generateTokens(newPayload);
 
-      return { accessToken, refreshToken: newRefreshToken };
+      return tokens;
     } catch (error) {
-      throw new BadRequestException('Invalid refresh token');
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 }

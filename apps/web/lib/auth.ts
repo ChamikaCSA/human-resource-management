@@ -66,3 +66,15 @@ export const signIn = async (email: string, password: string) => {
 
   return data;
 };
+
+export const signOut = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("userId");
+  document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+};
+
+export const isLoggedIn = () => {
+  const accessToken = localStorage.getItem("accessToken");
+  const userId = localStorage.getItem("userId");
+  return !!accessToken && !!userId;
+};

@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Post } from '@prisma/client';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -7,19 +7,26 @@ import { CreatePostDto } from './dto/create-post.dto';
 export class PostsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(): Promise<Post[]> {
-    return this.prisma.post.findMany({
-      include: {
-        author: true,
-      },
-    });
+  async findAll(page: number, limit: number): Promise<{ posts: Post[], total: number }> {
+    const skip = (page - 1) * limit;
+    const [posts, total] = await Promise.all([
+      this.prisma.post.findMany({
+        include: {
+          author: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip: skip,
+        take: limit,
+      }),
+      this.prisma.post.count(),
+    ]);
+    return { posts, total };
   }
 
   async create(createPostDto: CreatePostDto) {
-    const { title, content, authorId, views, likes, comments, shares, createdAt } = createPostDto;
-    if (!title || !content) {
-      throw new BadRequestException('Title and content must not be empty');
-    }
+    const { title, content, authorId, ...optionalFields } = createPostDto;
     return this.prisma.post.create({
       data: {
         title,
@@ -27,11 +34,8 @@ export class PostsService {
         author: {
           connect: { id: authorId },
         },
-        views,
-        likes,
-        comments,
-        shares,
-        createdAt: createdAt ? new Date(createdAt) : undefined,
+        ...optionalFields,
+        createdAt: optionalFields.createdAt ? new Date(optionalFields.createdAt) : undefined,
       },
     });
   }

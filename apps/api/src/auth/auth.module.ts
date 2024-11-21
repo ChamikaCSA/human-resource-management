@@ -4,6 +4,9 @@ import { AuthController } from './auth.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
+import { HashModule } from '../hash/hash.module';
+import { UsersModule } from '../users/users.module';
+import { JwtAuthGuard } from '../jwt/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -17,16 +20,10 @@ import { AuthService } from './auth.service';
         signOptions: { expiresIn: '1h' },
       }),
     }),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_REFRESH_SECRET'),
-        signOptions: { expiresIn: '7d' },
-      }),
-    }),
+    HashModule,
+    UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtAuthGuard],
 })
 export class AuthModule {}

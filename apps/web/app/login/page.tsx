@@ -1,12 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "../../lib/auth";
+import { useState, useEffect } from "react";
+import { signIn, isLoggedIn } from "../../lib/auth";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const SignInPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (isLoggedIn()) {
+      window.location.href = "/buzz";
+    }
+  }, []);
 
   const handleSignIn = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -14,7 +23,7 @@ const SignInPage = () => {
 
     try {
       const { user, accessToken, refreshToken } = await signIn(email, password);
-      window.location.href = "/newsfeed";
+      window.location.href = "/buzz";
     } catch (error) {
       setError((error as Error).message);
     }
@@ -22,60 +31,38 @@ const SignInPage = () => {
 
   return (
     <div className="container mx-auto px-10 py-6 max-w-screen-lg">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Sign In</h1>
-
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">
-          Log in to your account
-        </h2>
-        {error && <p className="text-red-600 mb-4">{error}</p>}
-        <form onSubmit={handleSignIn} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-gray-700 font-semibold mb-2"
-            >
-              Email
-            </label>
-            <input
+      <h4 className="text-2xl font-bold mb-6 text-teal-900">Sign In</h4>
+      <Card className="mb-6 bg-white shadow-lg hover:shadow-2xl transition-shadow duration-300 rounded-lg overflow-hidden">
+        <CardHeader className="bg-teal-500 text-white p-4">
+          <h6 className="text-lg font-semibold">Log in to your account</h6>
+        </CardHeader>
+        <CardContent className="p-4">
+          {error && <p className="text-red-600 mb-4">{error}</p>}
+          <form onSubmit={handleSignIn} className="space-y-4">
+            <Input
               type="email"
-              id="email"
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="w-full"
             />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-gray-700 font-semibold mb-2"
-            >
-              Password
-            </label>
-            <input
+            <Input
               type="password"
-              id="password"
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              className="w-full"
             />
-          </div>
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-500 transition"
-            >
-              Sign In
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Footer */}
-      <footer className="mt-10 text-center text-gray-500">
-        &copy; {new Date().getFullYear()} HRM System. All rights reserved.
+            <div className="flex justify-end">
+              <Button type="submit" variant="default" color="primary" className="bg-teal-500 hover:bg-teal-600 text-white">Sign In</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+      <footer className="mt-10 text-center text-teal-500">
+        &copy; {new Date().getFullYear()} TealHRM. All rights reserved.
       </footer>
     </div>
   );

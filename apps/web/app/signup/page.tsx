@@ -2,13 +2,21 @@
 
 import { useState } from "react";
 import { signUp } from "../../lib/auth";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const SignUpPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [dob, setDob] = useState<Date | null>(null);
+  const [dob, setDob] = useState<Date | undefined>(undefined);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -36,7 +44,7 @@ const SignUpPage = () => {
         dob,
         password
       );
-      window.location.href = "/newsfeed";
+      window.location.href = "/buzz";
     } catch (error) {
       setError((error as Error).message);
     }
@@ -44,143 +52,94 @@ const SignUpPage = () => {
 
   return (
     <div className="container mx-auto px-10 py-6 max-w-screen-lg">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Sign Up</h1>
-
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">
-          Create your account
-        </h2>
-        {error && <p className="text-red-600 mb-4">{error}</p>}
-        <form onSubmit={handleSignUp} className="space-y-4">
-          <div className="flex space-x-4">
-            <div className="flex-1">
-              <label
-                htmlFor="firstName"
-                className="block text-gray-700 font-semibold mb-2"
-              >
-                First Name
-              </label>
-              <input
+      <h4 className="text-2xl font-bold mb-6 text-teal-900">Sign Up</h4>
+      <Card className="mb-6 bg-white shadow-lg hover:shadow-2xl transition-shadow duration-300 rounded-lg overflow-hidden">
+        <CardHeader className="bg-teal-500 text-white p-4">
+          <h6 className="text-lg font-semibold">Create your account</h6>
+        </CardHeader>
+        <CardContent className="p-4">
+          {error && <p className="text-red-600 mb-4">{error}</p>}
+          <form onSubmit={handleSignUp} className="space-y-4">
+            <div className="flex space-x-4">
+              <Input
                 type="text"
-                id="firstName"
-                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
+                placeholder="First Name"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required
+                className="w-full"
               />
-            </div>
-            <div className="flex-1">
-              <label
-                htmlFor="lastName"
-                className="block text-gray-700 font-semibold mb-2"
-              >
-                Last Name
-              </label>
-              <input
+              <Input
                 type="text"
-                id="lastName"
-                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
+                placeholder="Last Name"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 required
+                className="w-full"
               />
             </div>
-          </div>
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-gray-700 font-semibold mb-2"
-            >
-              Email
-            </label>
-            <input
+            <Input
               type="email"
-              id="email"
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="w-full"
             />
-          </div>
-          <div>
-            <label
-              htmlFor="phone"
-              className="block text-gray-700 font-semibold mb-2"
-            >
-              Phone Number
-            </label>
-            <input
+            <Input
               type="tel"
-              id="phone"
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
+              placeholder="Phone Number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
+              className="w-full"
             />
-          </div>
-          <div>
-            <label
-              htmlFor="dob"
-              className="block text-gray-700 font-semibold mb-2"
-            >
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              id="dob"
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
-              onChange={(e) =>
-                setDob(e.target.value ? new Date(e.target.value) : null)
-              }
-              required
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-gray-700 font-semibold mb-2"
-            >
-              Password
-            </label>
-            <input
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !dob && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dob ? format(dob, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={dob}
+                  onSelect={(date) => setDob(date ?? undefined)}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <Input
               type="password"
-              id="password"
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              className="w-full"
             />
-          </div>
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-gray-700 font-semibold mb-2"
-            >
-              Confirm Password
-            </label>
-            <input
+            <Input
               type="password"
-              id="confirmPassword"
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
+              placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
+              className="w-full"
             />
-          </div>
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-500 transition"
-            >
-              Next
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Footer */}
-      <footer className="mt-10 text-center text-gray-500">
-        &copy; {new Date().getFullYear()} HRM System. All rights reserved.
+            <div className="flex justify-end">
+              <Button type="submit" variant="default" color="primary" className="bg-teal-500 hover:bg-teal-600 text-white">Next</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+      <footer className="mt-10 text-center text-teal-500">
+        &copy; {new Date().getFullYear()} TealHRM. All rights reserved.
       </footer>
     </div>
   );
