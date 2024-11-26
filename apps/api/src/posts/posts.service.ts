@@ -39,4 +39,23 @@ export class PostsService {
       },
     });
   }
+
+  async update(id: string, updatePostDto: CreatePostDto): Promise<Post> {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return this.prisma.post.update({
+      where: { id },
+      data: updatePostDto,
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    await this.prisma.post.delete({ where: { id } });
+  }
 }

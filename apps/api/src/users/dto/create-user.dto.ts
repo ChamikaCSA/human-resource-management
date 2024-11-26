@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsDateString, IsPhoneNumber, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsDateString, IsPhoneNumber, MinLength, IsOptional, IsEnum, IsUUID } from 'class-validator';
+import { Role } from '../../roles/roles.enum';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -23,15 +24,23 @@ export class CreateUserDto {
   @MinLength(8)
   password: string;
 
-  @IsNotEmpty()
-  jobTitle: string;
+  @IsOptional()
+  jobTitle: string = "N/A";
 
-  @IsNotEmpty()
-  department: string;
+  @IsOptional()
+  department: string = "N/A";
 
-  @IsNotEmpty()
-  employmentType: string;
+  @IsOptional()
+  employmentType: string = "N/A";
 
+  @IsOptional()
+  workLocation: string = "N/A";
+
+  @IsEnum(Role)
   @IsNotEmpty()
-  workLocation: string;
+  role: Role;
+
+  @IsUUID()
+  @IsOptional()
+  supervisorId?: string;
 }

@@ -6,7 +6,7 @@ async function main() {
   await prisma.post.deleteMany({});
   await prisma.user.deleteMany({});
 
-  await prisma.user.createMany({
+  const supervisors = await prisma.user.createMany({
     data: [
       {
         firstName: 'John',
@@ -20,6 +20,7 @@ async function main() {
         workLocation: 'Remote',
         password: 'password123',
         createdAt: new Date('2023-01-01T10:00:00Z'),
+        role: 'Supervisor',
       },
       {
         firstName: 'Jane',
@@ -33,7 +34,18 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2023-02-01T10:00:00Z'),
+        role: 'Supervisor',
       },
+    ],
+  });
+
+  const supervisorIds = await prisma.user.findMany({
+    where: { role: 'Supervisor' },
+    select: { id: true },
+  });
+
+  await prisma.user.createMany({
+    data: [
       {
         firstName: 'Alice',
         lastName: 'Johnson',
@@ -46,6 +58,8 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2023-03-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[0].id,
       },
       {
         firstName: 'Bob',
@@ -59,6 +73,8 @@ async function main() {
         workLocation: 'Remote',
         password: 'password123',
         createdAt: new Date('2023-04-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[0].id,
       },
       {
         firstName: 'Charlie',
@@ -72,6 +88,8 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2023-05-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[0].id,
       },
       {
         firstName: 'David',
@@ -85,6 +103,8 @@ async function main() {
         workLocation: 'Remote',
         password: 'password123',
         createdAt: new Date('2023-06-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[0].id,
       },
       {
         firstName: 'Emma',
@@ -98,6 +118,8 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2023-07-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[0].id,
       },
       {
         firstName: 'Frank',
@@ -111,6 +133,8 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2023-08-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[0].id,
       },
       {
         firstName: 'Grace',
@@ -124,6 +148,8 @@ async function main() {
         workLocation: 'Remote',
         password: 'password123',
         createdAt: new Date('2023-09-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[1].id,
       },
       {
         firstName: 'Henry',
@@ -137,6 +163,8 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2023-10-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[1].id,
       },
       {
         firstName: 'Ivy',
@@ -150,6 +178,8 @@ async function main() {
         workLocation: 'Remote',
         password: 'password123',
         createdAt: new Date('2023-11-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[1].id,
       },
       {
         firstName: 'Jack',
@@ -163,6 +193,8 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2023-12-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[1].id,
       },
       {
         firstName: 'Karen',
@@ -176,6 +208,8 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2024-01-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[1].id,
       },
       {
         firstName: 'Leo',
@@ -189,6 +223,8 @@ async function main() {
         workLocation: 'Remote',
         password: 'password123',
         createdAt: new Date('2024-02-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[1].id,
       },
       {
         firstName: 'Mia',
@@ -202,6 +238,8 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2024-03-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[1].id,
       },
       {
         firstName: 'Noah',
@@ -215,6 +253,8 @@ async function main() {
         workLocation: 'Remote',
         password: 'password123',
         createdAt: new Date('2024-04-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[1].id,
       },
       {
         firstName: 'Olivia',
@@ -228,6 +268,8 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2024-05-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[1].id,
       },
       {
         firstName: 'Paul',
@@ -241,84 +283,8 @@ async function main() {
         workLocation: 'Office',
         password: 'password123',
         createdAt: new Date('2024-06-01T10:00:00Z'),
-      },
-      {
-        firstName: 'Quinn',
-        lastName: 'Harris',
-        email: 'quinn.harris@example.com',
-        birthDate: new Date('1989-06-18'),
-        phoneNumber: '1100990011',
-        jobTitle: 'Customer Success Manager',
-        department: 'Support',
-        employmentType: 'Part-time',
-        workLocation: 'Remote',
-        password: 'password123',
-        createdAt: new Date('2024-07-01T10:00:00Z'),
-      },
-      {
-        firstName: 'Rachel',
-        lastName: 'Martin',
-        email: 'rachel.martin@example.com',
-        birthDate: new Date('1994-02-25'),
-        phoneNumber: '0011223344',
-        jobTitle: 'Financial Advisor',
-        department: 'Finance',
-        employmentType: 'Full-time',
-        workLocation: 'Office',
-        password: 'password123',
-        createdAt: new Date('2024-08-01T10:00:00Z'),
-      },
-      {
-        firstName: 'Sam',
-        lastName: 'Green',
-        email: 'sam.green@example.com',
-        birthDate: new Date('1990-01-01'),
-        phoneNumber: '1122334455',
-        jobTitle: 'Legal Advisor',
-        department: 'Legal',
-        employmentType: 'Full-time',
-        workLocation: 'Remote',
-        password: 'password123',
-        createdAt: new Date('2024-09-01T10:00:00Z'),
-      },
-      {
-        firstName: 'Tina',
-        lastName: 'Black',
-        email: 'tina.black@example.com',
-        birthDate: new Date('1985-05-15'),
-        phoneNumber: '2233445566',
-        jobTitle: 'PR Specialist',
-        department: 'Public Relations',
-        employmentType: 'Full-time',
-        workLocation: 'Office',
-        password: 'password123',
-        createdAt: new Date('2024-10-01T10:00:00Z'),
-      },
-      {
-        firstName: 'Uma',
-        lastName: 'White',
-        email: 'uma.white@example.com',
-        birthDate: new Date('1992-07-20'),
-        phoneNumber: '3344556677',
-        jobTitle: 'Event Coordinator',
-        department: 'Events',
-        employmentType: 'Part-time',
-        workLocation: 'Office',
-        password: 'password123',
-        createdAt: new Date('2024-11-01T10:00:00Z'),
-      },
-      {
-        firstName: 'Victor',
-        lastName: 'Brown',
-        email: 'victor.brown@example.com',
-        birthDate: new Date('1988-03-14'),
-        phoneNumber: '4455667788',
-        jobTitle: 'IT Support',
-        department: 'IT',
-        employmentType: 'Full-time',
-        workLocation: 'Remote',
-        password: 'password123',
-        createdAt: new Date('2024-12-01T10:00:00Z'),
+        role: 'Subordinate',
+        supervisorId: supervisorIds[1].id,
       },
     ],
   });

@@ -19,82 +19,60 @@ import {
 import { useState, useEffect } from "react";
 import { getJobTitles } from "../lib/users";
 
+const AvatarComponent = ({ user }: { user: User }) => (
+  <Avatar className="border-4 border-teal-500 w-24 h-24 shadow-lg">
+    <AvatarImage src={`https://www.gravatar.com/avatar/${user.id.slice(0, 8)}?d=identicon`} alt={user.firstName} />
+    <AvatarFallback className="text-xl">{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
+  </Avatar>
+);
+
 const UserCardCompact = ({ user, onClick }: { user: User; onClick: () => void }) => (
-  <Card className="transition-shadow duration-300 bg-white rounded-lg overflow-hidden flex flex-col relative cursor-pointer h-auto shadow-lg hover:shadow-2xl mb-10 mx-5" onClick={onClick}>
+  <Card className="transition-shadow duration-300 bg-gradient-to-r from-teal-500 to-teal-700 rounded-lg overflow-hidden flex flex-col relative cursor-pointer h-auto shadow-lg hover:shadow-2xl mb-10 mx-5" onClick={onClick}>
     <CardHeader className="relative z-10 bg-cover bg-center p-4">
       <div className="flex flex-col items-center justify-center">
-        <h6 className="text-lg font-semibold text-gray-900">{user.firstName} {user.lastName}</h6>
-        <Avatar className="my-3 border-2 border-white w-20 h-20">
-          <AvatarImage src={`https://www.gravatar.com/avatar/${user.id.slice(0, 8)}?d=identicon`} alt={user.firstName} />
-          <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
-        </Avatar>
-        <span className="text-sm text-gray-700">{user.jobTitle}</span>
+        <h6 className="text-lg font-semibold text-white">{user.firstName} {user.lastName}</h6>
+        <AvatarComponent user={user} />
+        <span className="text-sm text-gray-200">{user.jobTitle || "N/A"}</span>
       </div>
     </CardHeader>
-    <CardContent className="bg-teal-500 text-white p-4">
-      <p className="text-sm font-medium">{user.department}</p>
-      <p className="text-xs text-gray-100">{user.employmentType}</p>
+    <CardContent className="bg-teal-700 text-white p-4">
+      <p className="text-sm font-medium">{user.department || "N/A"}</p>
+      <p className="text-xs text-gray-300">{user.employmentType || "N/A"}</p>
     </CardContent>
   </Card>
 );
 
 const UserCardDetailed = ({ user, onClose }: { user: User; onClose: () => void }) => (
   <Card className="transition-shadow duration-300 bg-white rounded-lg overflow-hidden flex flex-col shadow-lg hover:shadow-2xl">
-    <CardHeader className="relative z-10 bg-cover bg-center p-4 bg-teal-500 text-white">
+    <CardHeader className="relative z-10 bg-cover bg-center p-4 bg-gradient-to-r from-teal-500 to-teal-700 text-white">
       <div className="flex items-center">
-        <Avatar className="mr-3 border-2 border-white w-32 h-32">
-          <AvatarImage src={`https://www.gravatar.com/avatar/${user.id.slice(0, 8)}?d=identicon`} alt={user.firstName} />
-          <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
-        </Avatar>
-        <div>
+        <AvatarComponent user={user} />
+        <div className="ml-4">
           <h6 className="text-xl font-semibold">{user.firstName} {user.lastName}</h6>
-          <span className="text-base text-gray-100">{user.jobTitle}</span>
+          <span className="text-base text-gray-200">{user.jobTitle || "N/A"}</span>
         </div>
       </div>
+      <Button onClick={onClose} className="absolute top-2 right-2 bg-teal-500 hover:bg-teal-600 text-white rounded-full p-2 shadow-md">
+        <FaTimes />
+      </Button>
     </CardHeader>
     <CardContent className="space-y-4 p-4 pb-[28px]">
-      <div className="flex items-center text-gray-900">
-        <FaEnvelope className="mr-2 text-teal-700" />
-        <div>
-          <span className="block text-sm font-medium text-gray-700">Email</span>
-          <span className="text-base font-semibold">{user.email}</span>
+      {[
+        { icon: FaEnvelope, label: "Email", value: user.email },
+        { icon: FaBirthdayCake, label: "Birth Date", value: new Date(user.birthDate).toLocaleDateString() },
+        { icon: FaPhone, label: "Phone", value: user.phoneNumber },
+        { icon: FaBuilding, label: "Department", value: user.department || "N/A" },
+        { icon: FaBriefcase, label: "Employment Type", value: user.employmentType || "N/A" },
+        { icon: FaMapMarkerAlt, label: "Work Location", value: user.workLocation || "N/A" },
+      ].map(({ icon: Icon, label, value }) => (
+        <div key={label} className="flex items-center text-gray-900">
+          <Icon className="mr-2 text-teal-700" />
+          <div>
+            <span className="block text-sm font-medium text-gray-700">{label}</span>
+            <span className="text-base font-semibold">{value}</span>
+          </div>
         </div>
-      </div>
-      <div className="flex items-center text-gray-900">
-        <FaBirthdayCake className="mr-2 text-teal-700" />
-        <div>
-          <span className="block text-sm font-medium text-gray-700">Birth Date</span>
-          <span className="text-base font-semibold">{new Date(user.birthDate).toLocaleDateString()}</span>
-        </div>
-      </div>
-      <div className="flex items-center text-gray-900">
-        <FaPhone className="mr-2 text-teal-700" />
-        <div>
-          <span className="block text-sm font-medium text-gray-700">Phone</span>
-          <span className="text-base font-semibold">{user.phoneNumber}</span>
-        </div>
-      </div>
-      <div className="flex items-center text-gray-900">
-        <FaBuilding className="mr-2 text-teal-700" />
-        <div>
-          <span className="block text-sm font-medium text-gray-700">Department</span>
-          <span className="text-base font-semibold">{user.department}</span>
-        </div>
-      </div>
-      <div className="flex items-center text-gray-900">
-        <FaBriefcase className="mr-2 text-teal-700" />
-        <div>
-          <span className="block text-sm font-medium text-gray-700">Employment Type</span>
-          <span className="text-base font-semibold">{user.employmentType}</span>
-        </div>
-      </div>
-      <div className="flex items-center text-gray-900">
-        <FaMapMarkerAlt className="mr-2 text-teal-700" />
-        <div>
-          <span className="block text-sm font-medium text-gray-700">Work Location</span>
-          <span className="text-base font-semibold">{user.workLocation}</span>
-        </div>
-      </div>
+      ))}
     </CardContent>
   </Card>
 );
@@ -118,7 +96,7 @@ export const UserCardSkeleton = () => (
       <Skeleton className="rounded-full h-20 w-20 bg-gray-300 mb-3" />
       <Skeleton className="h-4 bg-gray-300 mb-2 w-1/3" />
     </div>
-    <div className="bg-teal-500 text-white p-4">
+    <div className="bg-teal-700 text-white p-4">
       <Skeleton className="h-4 bg-gray-300 mb-2 w-1/2" />
       <Skeleton className="h-3 bg-gray-300 w-1/3" />
     </div>

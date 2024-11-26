@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PaginationWrapper } from "../../components/pagination-wrapper";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const BuzzPage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -22,6 +21,10 @@ const BuzzPage = () => {
   const [limit] = useState(6);
   const [totalPosts, setTotalPosts] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [page]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -40,12 +43,7 @@ const BuzzPage = () => {
       if (!userId) {
         throw new Error("User not logged in");
       }
-      await createPost(
-        newPostTitle,
-        newPostContent,
-        userId,
-        new Date().toISOString()
-      );
+      await createPost(newPostTitle, newPostContent, userId, new Date().toISOString());
       setNewPostTitle("");
       setNewPostContent("");
       setIsCreatingPost(false);
@@ -80,23 +78,9 @@ const BuzzPage = () => {
     window.location.href = "/";
   };
 
-  useEffect(() => {
-    fetchPosts();
-  }, [page]);
-
   return (
     <div className="container mx-auto px-10 py-6 max-w-screen-lg">
-      <div className="flex justify-between items-center mb-6">
-        <h4 className="text-2xl font-bold text-teal-700">Buzz Newsfeed</h4>
-        <Button
-          onClick={handleSignOut}
-          variant="default"
-          color="destructive"
-          className="bg-teal-500 hover:bg-teal-600 text-white"
-        >
-          Sign Out
-        </Button>
-      </div>
+      <Header handleSignOut={handleSignOut} />
       {isLoggedIn() && (
         <PostCreationForm
           handleCreatePost={handleCreatePost}
@@ -109,33 +93,31 @@ const BuzzPage = () => {
           setIsCreatingPost={setIsCreatingPost}
         />
       )}
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {Array.from({ length: limit }).map((_, index) => (
-            <PostCardSkeleton key={index} />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
-      )}
+      <PostList posts={posts} loading={loading} limit={limit} />
       <PaginationWrapper
         page={page}
         setPage={setPage}
         totalItems={totalPosts}
         limit={limit}
       />
-      <footer className="mt-10 text-center text-teal-500">
-        &copy; {new Date().getFullYear()} TealHRM. All rights reserved.
-      </footer>
+      <Footer />
     </div>
   );
 };
 
-export default BuzzPage;
+const Header = ({ handleSignOut }: { handleSignOut: () => void }) => (
+  <div className="flex justify-between items-center mb-6">
+    <h4 className="text-2xl font-bold text-teal-700">Buzz Newsfeed</h4>
+    <Button
+      onClick={handleSignOut}
+      variant="default"
+      color="destructive"
+      className="bg-teal-500 hover:bg-teal-600 text-white"
+    >
+      Sign Out
+    </Button>
+  </div>
+);
 
 const PostCreationForm = ({
   handleCreatePost,
@@ -192,3 +174,25 @@ const PostCreationForm = ({
     </CardContent>
   </Card>
 );
+
+const PostList = ({ posts, loading, limit }: { posts: Post[], loading: boolean, limit: number }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {loading ? (
+      Array.from({ length: limit }).map((_, index) => (
+        <PostCardSkeleton key={index} />
+      ))
+    ) : (
+      posts.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))
+    )}
+  </div>
+);
+
+const Footer = () => (
+  <footer className="mt-10 text-center text-teal-500">
+    &copy; {new Date().getFullYear()} TealHRM. All rights reserved.
+  </footer>
+);
+
+export default BuzzPage;

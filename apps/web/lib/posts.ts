@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "./auth";
 import { BACKEND_URL } from "./constants";
 
 export const getPosts = async (page: number, limit: number) => {
@@ -19,9 +20,11 @@ export const getPosts = async (page: number, limit: number) => {
   };
 };
 
+
+
 export const createPost = async (title: string, content: string, authorId: string, createdAt: string) => {
   const accessToken = localStorage.getItem("accessToken");
-  const response = await fetch(`${BACKEND_URL}/posts`, {
+  const response = await fetchWithAuth(`${BACKEND_URL}/posts`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

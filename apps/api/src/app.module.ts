@@ -6,9 +6,23 @@ import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import { LeavesModule } from './leaves/leaves.module';
 
 @Module({
-  imports: [UsersModule, PostsModule, PrismaModule, AuthModule],
+  imports: [
+    ConfigModule.forRoot(),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '60m' },
+    }),
+    UsersModule,
+    PostsModule,
+    PrismaModule,
+    AuthModule,
+    LeavesModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

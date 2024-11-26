@@ -25,13 +25,26 @@ export const refreshAccessToken = async () => {
   return data.accessToken;
 };
 
-export const signUp = async (firstName: string, lastName: string, email: string, phone: string, dob: Date, password: string) => {
+export const fetchWithAuth = async (url: string, options: RequestInit) => {
+  let response = await fetch(url, options);
+  if (response.status === 401) {
+    const newAccessToken = await refreshAccessToken();
+    options.headers = {
+      ...options.headers,
+      "Authorization": `Bearer ${newAccessToken}`,
+    };
+    response = await fetch(url, options);
+  }
+  return response;
+};
+
+export const signUp = async (firstName: string, lastName: string, email: string, phone: string, dob: Date, password: string, jobTitle?: string, department?: string, employmentType?: string, workLocation?: string) => {
   const response = await fetch(`${BACKEND_URL}/auth/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ firstName, lastName, email, phoneNumber: phone, birthDate: dob.toISOString(), password }),
+    body: JSON.stringify({ firstName, lastName, email, phoneNumber: phone, birthDate: dob.toISOString(), password, jobTitle, department, employmentType, workLocation }),
   });
 
   if (!response.ok) {

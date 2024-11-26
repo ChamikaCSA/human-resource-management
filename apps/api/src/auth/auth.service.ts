@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { HashService } from '../hash/hash.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
+import { Role } from 'src/roles/roles.enum';
 
 @Injectable()
 export class AuthService {
@@ -27,24 +28,28 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: user.id, role: user.role };
     const tokens = this.generateTokens(payload);
 
     return { user, ...tokens };
   }
 
   async signUp(createUserDto: CreateUserDto) {
-    const { email, password } = createUserDto;
-    
+    const { email, password, role, supervisorId } = createUserDto;
+
     const existingUser = await this.prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       throw new BadRequestException('Email already in use');
     }
 
+    if (role === Role.Subordinate && !supervisorId) {
+      throw new BadRequestException('Subordinates must have a supervisor');
+    }
+
     const hashedPassword = await this.hashService.hashPassword(password);
     const user = await this.usersService.create({ ...createUserDto, password: hashedPassword });
 
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: user.id, role: user.role };
     const tokens = this.generateTokens(payload);
 
     return { user, ...tokens };
@@ -59,7 +64,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      const newPayload = { email: user.email, sub: user.id };
+      const newPayload = { email: user.email, sub: user.id, role: user.role };
       const tokens = this.generateTokens(newPayload);
 
       return tokens;

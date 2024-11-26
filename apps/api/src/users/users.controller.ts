@@ -1,22 +1,25 @@
-import { Controller, Get, Param, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Query, UsePipes, ValidationPipe, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User as UserModel } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Roles } from '../roles/roles.decorator';
+import { Role } from '../roles/roles.enum';
+import { RolesGuard } from '../roles/roles.guard';
 
 @Controller('users')
+@UseGuards(RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @Roles(Role.Supervisor)
   async findAll(
-    @Query('page') page: string,
-    @Query('limit') limit: string,
-    @Query('searchQuery') searchQuery: string,
-    @Query('jobTitle') jobTitle: string,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
+    @Query('searchQuery') searchQuery?: string,
+    @Query('jobTitle') jobTitle?: string,
   ): Promise<{ users: UserModel[]; total: number }> {
-    const pageNumber = parseInt(page, 10) || 1;
-    const limitNumber = parseInt(limit, 10) || 10;
-    return this.usersService.findAll(pageNumber, limitNumber, searchQuery, jobTitle);
+    return this.usersService.findAll(page, limit, searchQuery, jobTitle);
   }
 
   @Get('job-titles')
@@ -30,6 +33,7 @@ export class UsersController {
   }
 
   @Post()
+  @UsePipes(new ValidationPipe())
   async create(@Body() createUserDto: CreateUserDto): Promise<UserModel> {
     return this.usersService.create(createUserDto);
   }

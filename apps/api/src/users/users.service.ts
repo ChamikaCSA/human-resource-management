@@ -1,10 +1,8 @@
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Role } from '../roles/roles.enum';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -12,25 +10,20 @@ export class UsersService {
 
   async findAll(page: number, limit: number, searchQuery?: string, jobTitle?: string): Promise<{ users: any[]; total: number }> {
     const skip = (page - 1) * limit;
-    const where: any = {};
-
-    if (searchQuery) {
-      where.OR = [
-        { firstName: { contains: searchQuery, mode: 'insensitive' } },
-        { lastName: { contains: searchQuery, mode: 'insensitive' } },
-      ];
-    }
-
-    if (jobTitle) {
-      where.jobTitle = jobTitle;
-    }
+    const where: Prisma.UserWhereInput = {
+      ...(searchQuery && {
+        OR: [
+          { firstName: { contains: searchQuery, mode: 'insensitive' } },
+          { lastName: { contains: searchQuery, mode: 'insensitive' } },
+        ],
+      }),
+      ...(jobTitle && { jobTitle }),
+    };
 
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         where,
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
@@ -49,18 +42,18 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
+    if (createUserDto.role === Role.Subordinate && !createUserDto.supervisorId) {
+      throw new BadRequestException('Subordinates must have a supervisor');
+    }
     return this.prisma.user.create({ data: createUserDto });
   }
 
   async getJobTitles(): Promise<string[]> {
     const jobTitles = await this.prisma.user.findMany({
-      select: {
-        jobTitle: true,
-      },
+      select: { jobTitle: true },
+      where: { jobTitle: { not: '' } },
       distinct: ['jobTitle'],
-      orderBy: {
-        jobTitle: 'asc',
-      },
+      orderBy: { jobTitle: 'asc' },
     });
     return jobTitles.map(job => job.jobTitle);
   }

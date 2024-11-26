@@ -3,6 +3,7 @@ import { PostsService } from './posts.service';
 import { PostsController } from './posts.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  providers: [PostsService],
   controllers: [PostsController],
+  providers: [PostsService, PrismaService],
 })
 export class PostsModule {}

@@ -10,6 +10,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Select, SelectTrigger } from "@radix-ui/react-select";
 
 const SignUpPage = () => {
   const [firstName, setFirstName] = useState("");
@@ -20,6 +21,10 @@ const SignUpPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [department, setDepartment] = useState("");
+  const [employmentType, setEmploymentType] = useState("");
+  const [workLocation, setWorkLocation] = useState("");
 
   const handleSignUp = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -42,7 +47,11 @@ const SignUpPage = () => {
         email,
         phone,
         dob,
-        password
+        password,
+        jobTitle,
+        department,
+        employmentType,
+        workLocation
       );
       window.location.href = "/buzz";
     } catch (error) {
@@ -104,10 +113,10 @@ const SignUpPage = () => {
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dob ? format(dob, "PPP") : <span>Pick a date</span>}
+                  {dob ? format(dob, "PPP") : <span>Date of Birth</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-4">
                 <Calendar
                   mode="single"
                   selected={dob}
@@ -130,6 +139,34 @@ const SignUpPage = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
+              className="w-full"
+            />
+            <Input
+              type="text"
+              placeholder="Job Title (optional)"
+              value={jobTitle}
+              onChange={(e) => setJobTitle(e.target.value)}
+              className="w-full"
+            />
+            <Input
+              type="text"
+              placeholder="Department (optional)"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              className="w-full"
+            />
+            <Input
+              type="text"
+              placeholder="Employment Type (optional)"
+              value={employmentType}
+              onChange={(e) => setEmploymentType(e.target.value)}
+              className="w-full"
+            />
+            <Input
+              type="text"
+              placeholder="Work Location (optional)"
+              value={workLocation}
+              onChange={(e) => setWorkLocation(e.target.value)}
               className="w-full"
             />
             <div className="flex justify-end">

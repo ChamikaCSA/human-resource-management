@@ -13,6 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  Supervisor
+  Subordinate
+}
+
 model User {
   id              String   @id @default(uuid())
   firstName       String
@@ -20,13 +25,18 @@ model User {
   email           String   @unique
   birthDate       DateTime
   phoneNumber     String
-  jobTitle        String
-  department      String
-  employmentType  String
-  workLocation    String
+  jobTitle        String?
+  department      String?
+  employmentType  String?
+  workLocation    String?
   password        String
   posts           Post[]
+  leaves          Leave[]
+  role            Role
   createdAt       DateTime @default(now())
+  supervisorId    String?
+  supervisor      User?    @relation("UserSupervisor", fields: [supervisorId], references: [id])
+  subordinates    User[]   @relation("UserSupervisor")
 }
 
 model Post {
@@ -40,5 +50,21 @@ model Post {
   likes     Int      @default(0)
   comments  Int      @default(0)
   shares    Int      @default(0)
+}
+
+model Leave {
+  id                  String   @id @default(uuid())
+  leaveType           String
+  startDate           DateTime
+  startDateStartTime  String
+  startDateEndTime    String
+  endDate             DateTime
+  endDateStartTime    String
+  endDateEndTime      String
+  comments            String
+  status              String
+  userId              String
+  createdAt           DateTime @default(now())
+  user                User     @relation(fields: [userId], references: [id])
 }
 
