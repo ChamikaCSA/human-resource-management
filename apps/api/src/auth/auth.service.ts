@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { HashService } from '../hash/hash.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
-import { Role } from 'src/roles/roles.enum';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +31,7 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id, role: user.role };
     const tokens = this.generateTokens(payload);
 
-    return { user, ...tokens };
+    return { user, role: user.role, ...tokens };
   }
 
   async signUp(createUserDto: CreateUserDto) {
@@ -47,12 +47,12 @@ export class AuthService {
     }
 
     const hashedPassword = await this.hashService.hashPassword(password);
-    const user = await this.usersService.create({ ...createUserDto, password: hashedPassword });
+    const user = await this.usersService.addUser({ ...createUserDto, password: hashedPassword });
 
     const payload = { email: user.email, sub: user.id, role: user.role };
     const tokens = this.generateTokens(payload);
 
-    return { user, ...tokens };
+    return { user, role: user.role, ...tokens };
   }
 
   async refreshToken(refreshToken: string) {

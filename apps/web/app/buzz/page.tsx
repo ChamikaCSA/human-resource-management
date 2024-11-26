@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PaginationWrapper } from "../../components/pagination-wrapper";
+import { validatePostForm } from "@/utils/formValidators";
 
 const BuzzPage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -37,6 +38,12 @@ const BuzzPage = () => {
   const handleCreatePost = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
+
+    const validationError = validatePostForm(newPostTitle, newPostContent);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     try {
       const userId = localStorage.getItem("userId");

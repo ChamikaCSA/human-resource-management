@@ -165,7 +165,7 @@ const LeaveApplicationForm = ({
                 isSameDay ? (
                   <>
                     {renderDurationSelect(duration, setDuration)}
-                    {duration === "Specify Time" && renderTimeInputs(formState.startDayStartTime || "", formState.startDayEndTime || "")}
+                    {duration === "specifyTime" && renderTimeInputs(formState.startDayStartTime || "", formState.startDayEndTime || "")}
                   </>
                 ) : (
                   <>
@@ -183,27 +183,27 @@ const LeaveApplicationForm = ({
                     {partialDays === "All Days" && (
                       <>
                         {renderDurationSelect(duration, setDuration)}
-                        {duration === "Specify Time" && renderTimeInputs(formState.startDayStartTime || "", formState.endDayEndTime || "")}
+                        {duration === "specifyTime" && renderTimeInputs(formState.startDayStartTime || "", formState.endDayEndTime || "")}
                       </>
                     )}
                     {partialDays === "Start Day Only" && (
                       <>
                         {renderDurationSelect(startDayDuration, setStartDayDuration)}
-                        {startDayDuration === "Specify Time" && renderTimeInputs(formState.startDayStartTime || "", formState.startDayEndTime || "")}
+                        {startDayDuration === "specifyTime" && renderTimeInputs(formState.startDayStartTime || "", formState.startDayEndTime || "")}
                       </>
                     )}
                     {partialDays === "End Day Only" && (
                       <>
                         {renderDurationSelect(endDayDuration, setEndDayDuration)}
-                        {endDayDuration === "Specify Time" && renderTimeInputs(formState.endDayStartTime || "", formState.endDayEndTime || "")}
+                        {endDayDuration === "specifyTime" && renderTimeInputs(formState.endDayStartTime || "", formState.endDayEndTime || "")}
                       </>
                     )}
                     {partialDays === "Start and End Day Only" && (
                       <>
                         {renderDurationSelect(startDayDuration, setStartDayDuration)}
-                        {startDayDuration === "Specify Time" && renderTimeInputs(formState.startDayStartTime || "", formState.startDayEndTime || "")}
+                        {startDayDuration === "specifyTime" && renderTimeInputs(formState.startDayStartTime || "", formState.startDayEndTime || "")}
                         {renderDurationSelect(endDayDuration, setEndDayDuration)}
-                        {endDayDuration === "Specify Time" && renderTimeInputs(formState.endDayStartTime || "", formState.endDayEndTime || "")}
+                        {endDayDuration === "specifyTime" && renderTimeInputs(formState.endDayStartTime || "", formState.endDayEndTime || "")}
                       </>
                     )}
                   </>

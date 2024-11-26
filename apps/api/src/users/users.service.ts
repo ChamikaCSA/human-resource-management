@@ -1,14 +1,14 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Role } from '../roles/roles.enum';
+import { Role } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(page: number, limit: number, searchQuery?: string, jobTitle?: string): Promise<{ users: any[]; total: number }> {
+  async getAllUsers(page: number, limit: number, searchQuery?: string, jobTitle?: string): Promise<{ users: any[]; total: number }> {
     const skip = (page - 1) * limit;
     const where: Prisma.UserWhereInput = {
       ...(searchQuery && {
@@ -33,7 +33,7 @@ export class UsersService {
     return { users, total };
   }
 
-  async findOne(id: string) {
+  async getUserById(id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -41,14 +41,14 @@ export class UsersService {
     return user;
   }
 
-  async create(createUserDto: CreateUserDto) {
+  async addUser(createUserDto: CreateUserDto) {
     if (createUserDto.role === Role.Subordinate && !createUserDto.supervisorId) {
       throw new BadRequestException('Subordinates must have a supervisor');
     }
     return this.prisma.user.create({ data: createUserDto });
   }
 
-  async getJobTitles(): Promise<string[]> {
+  async getAllJobTitles(): Promise<string[]> {
     const jobTitles = await this.prisma.user.findMany({
       select: { jobTitle: true },
       where: { jobTitle: { not: '' } },

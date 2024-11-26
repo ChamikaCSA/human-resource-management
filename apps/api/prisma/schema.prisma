@@ -30,6 +30,8 @@ model User {
   employmentType  String?
   workLocation    String?
   password        String
+  leaveBalanceMedical Int @default(6)
+  leaveBalanceCasual  Int @default(6)
   posts           Post[]
   leaves          Leave[]
   role            Role
@@ -65,6 +67,7 @@ model Leave {
   status              String
   userId              String
   createdAt           DateTime @default(now())
+  duration            Float
   user                User     @relation(fields: [userId], references: [id])
 }
 

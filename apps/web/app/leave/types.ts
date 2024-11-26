@@ -10,5 +10,6 @@ export interface Leave {
   comments: string;
   status: string;
   userId: string;
+  userName: string;
   createdAt: string;
 }

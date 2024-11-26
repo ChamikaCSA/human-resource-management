@@ -13,26 +13,26 @@ export class PostsController {
     @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10
   ): Promise<{ posts: PostModel[], total: number }> {
-    return this.postsService.findAll(page, limit);
+    return this.postsService.getAllPosts(page, limit);
   }
 
   @Post()
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
   async create(@Body() createPostDto: CreatePostDto): Promise<PostModel> {
-    return this.postsService.create(createPostDto);
+    return this.postsService.addPost(createPostDto);
   }
 
   @Put(':id')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
   async update(@Param('id') id: string, @Body() updatePostDto: CreatePostDto): Promise<PostModel> {
-    return this.postsService.update(id, updatePostDto);
+    return this.postsService.modifyPost(id, updatePostDto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   async delete(@Param('id') id: string): Promise<void> {
-    return this.postsService.delete(id);
+    return this.postsService.removePost(id);
   }
 }

@@ -7,7 +7,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 export class PostsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(page: number, limit: number): Promise<{ posts: Post[], total: number }> {
+  async getAllPosts(page: number, limit: number): Promise<{ posts: Post[], total: number }> {
     const skip = (page - 1) * limit;
     const [posts, total] = await Promise.all([
       this.prisma.post.findMany({
@@ -25,7 +25,7 @@ export class PostsService {
     return { posts, total };
   }
 
-  async create(createPostDto: CreatePostDto) {
+  async addPost(createPostDto: CreatePostDto) {
     const { title, content, authorId, ...optionalFields } = createPostDto;
     return this.prisma.post.create({
       data: {
@@ -40,7 +40,7 @@ export class PostsService {
     });
   }
 
-  async update(id: string, updatePostDto: CreatePostDto): Promise<Post> {
+  async modifyPost(id: string, updatePostDto: CreatePostDto): Promise<Post> {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
@@ -51,7 +51,7 @@ export class PostsService {
     });
   }
 
-  async delete(id: string): Promise<void> {
+  async removePost(id: string): Promise<void> {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);

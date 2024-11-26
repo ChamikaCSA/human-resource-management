@@ -2,9 +2,9 @@ import { BACKEND_URL } from "./constants";
 import { Leave } from "../app/leave/types";
 import { fetchWithAuth } from "./auth";
 
-export const getLeaves = async (page: number, limit: number): Promise<{ leaves: Leave[], total: number }> => {
+export const getLeaves = async (userId: string): Promise<{ leaves: Leave[], total: number }> => {
   const accessToken = localStorage.getItem("accessToken");
-  const response = await fetchWithAuth(`${BACKEND_URL}/leaves?page=${page}&limit=${limit}`, {
+  const response = await fetchWithAuth(`${BACKEND_URL}/leaves?userId=${userId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -67,4 +67,67 @@ export const deleteLeave = async (id: string): Promise<void> => {
   if (!response.ok) {
     throw new Error(response.statusText);
   }
+};
+
+export const getSubordinateLeaves = async (supervisorId: string): Promise<{ leaves: Leave[], userName: string }> => {
+  const accessToken = localStorage.getItem("accessToken");
+  const response = await fetchWithAuth(`${BACKEND_URL}/leaves/subordinates?supervisorId=${supervisorId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch subordinate leaves");
+  }
+
+  const data = await response.json();
+  return { leaves: data.leaves, userName: data.userName };
+};
+
+export const approveLeave = async (id: string): Promise<void> => {
+  const accessToken = localStorage.getItem("accessToken");
+  const response = await fetchWithAuth(`${BACKEND_URL}/leaves/${id}/approve`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+};
+
+export const rejectLeave = async (id: string): Promise<void> => {
+  const accessToken = localStorage.getItem("accessToken");
+  const response = await fetchWithAuth(`${BACKEND_URL}/leaves/${id}/reject`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+};
+
+export const getLeaveBalance = async (userId: string): Promise<{ medical: number, casual: number }> => {
+  const accessToken = localStorage.getItem("accessToken");
+  const response = await fetchWithAuth(`${BACKEND_URL}/leaves/balance/${userId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch leave balance");
+  }
+
+  return response.json();
 };

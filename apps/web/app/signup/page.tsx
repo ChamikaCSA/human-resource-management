@@ -10,7 +10,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Select, SelectTrigger } from "@radix-ui/react-select";
+import { validateSignUpForm } from "@/utils/formValidators";
 
 const SignUpPage = () => {
   const [firstName, setFirstName] = useState("");
@@ -30,13 +30,9 @@ const SignUpPage = () => {
     event.preventDefault();
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (!dob) {
-      setError("Date of Birth is required");
+    const validationError = validateSignUpForm(password, confirmPassword, dob);
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -46,7 +42,7 @@ const SignUpPage = () => {
         lastName,
         email,
         phone,
-        dob,
+        dob!,
         password,
         jobTitle,
         department,

@@ -54,6 +54,7 @@ export const signUp = async (firstName: string, lastName: string, email: string,
   const data = await response.json();
   localStorage.setItem("accessToken", data.accessToken);
   localStorage.setItem("userId", data.user.id);
+  localStorage.setItem("userRole", data.user.role);
   document.cookie = `refreshToken=${data.refreshToken}; HttpOnly`;
 
   return data;
@@ -75,6 +76,7 @@ export const signIn = async (email: string, password: string) => {
   const data = await response.json();
   localStorage.setItem("accessToken", data.accessToken);
   localStorage.setItem("userId", data.user.id);
+  localStorage.setItem("userRole", data.user.role);
   document.cookie = `refreshToken=${data.refreshToken}; HttpOnly`;
 
   return data;
@@ -83,6 +85,7 @@ export const signIn = async (email: string, password: string) => {
 export const signOut = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("userId");
+  localStorage.removeItem("userRole");
   document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 };
 
@@ -90,4 +93,8 @@ export const isLoggedIn = () => {
   const accessToken = localStorage.getItem("accessToken");
   const userId = localStorage.getItem("userId");
   return !!accessToken && !!userId;
+};
+
+export const getUserRole = () => {
+  return localStorage.getItem("userRole");
 };
