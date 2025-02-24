@@ -11,12 +11,14 @@ import {
   rejectLeave,
   getLeaveBalance,
 } from "../../lib/leaves";
+import { signOut } from "../../lib/auth";
 import { Leave } from "./types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeaveApplicationForm from "../../components/leave-application-form";
 import LeaveFilterCard from "../../components/leave-filter-card";
 import { LeaveList, SubordinateLeaveList } from "../../components/leave-list";
 import { validateLeaveForm } from "@/utils/formValidators";
+import Header from "../../components/header";
 
 const initialFormState = {
   leaveType: "",
@@ -271,9 +273,14 @@ const LeavePage = () => {
     }
   };
 
+  const handleSignOut = () => {
+    signOut();
+    window.location.href = "/";
+  };
+
   return (
     <div className="container mx-auto px-10 py-6 max-w-screen-lg">
-      <Header />
+      <Header title="Leave" />
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="apply" className="text-teal-600">
@@ -386,12 +393,6 @@ const LeavePage = () => {
     </div>
   );
 };
-
-const Header = () => (
-  <div className="flex justify-between items-center mb-6">
-    <h4 className="text-2xl font-bold text-teal-700">Leave</h4>
-  </div>
-);
 
 const Footer = () => (
   <footer className="mt-10 text-center text-teal-500">

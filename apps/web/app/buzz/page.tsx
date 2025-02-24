@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PaginationWrapper } from "../../components/pagination-wrapper";
 import { validatePostForm } from "@/utils/formValidators";
+import Header from "../../components/header";
 
 const BuzzPage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -87,7 +88,7 @@ const BuzzPage = () => {
 
   return (
     <div className="container mx-auto px-10 py-6 max-w-screen-lg">
-      <Header handleSignOut={handleSignOut} />
+      <Header title="Buzz Newsfeed" />
       {isLoggedIn() && (
         <PostCreationForm
           handleCreatePost={handleCreatePost}
@@ -111,20 +112,6 @@ const BuzzPage = () => {
     </div>
   );
 };
-
-const Header = ({ handleSignOut }: { handleSignOut: () => void }) => (
-  <div className="flex justify-between items-center mb-6">
-    <h4 className="text-2xl font-bold text-teal-700">Buzz Newsfeed</h4>
-    <Button
-      onClick={handleSignOut}
-      variant="default"
-      color="destructive"
-      className="bg-teal-500 hover:bg-teal-600 text-white"
-    >
-      Sign Out
-    </Button>
-  </div>
-);
 
 const PostCreationForm = ({
   handleCreatePost,
